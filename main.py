@@ -1,15 +1,10 @@
 import streamlit as st
 import pandas as pd
 import openai
-from dotenv import load_dotenv
-import os
 
-# Load the secrets from the secrets.toml file
-load_dotenv("secrets.toml")
-
-# Get the password and api key from the secrets file
-correct_password = os.getenv('PASSWORD')
-api_key = os.getenv('OPENAI_API_KEY')
+# Get the password and api key from the secrets
+correct_password = st.secrets['password']
+api_key = st.secrets['openai_api_key']
 
 # Create a password input field
 password = st.text_input("Enter Password", type='password')
