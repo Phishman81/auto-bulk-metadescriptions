@@ -1,6 +1,32 @@
 import streamlit as st
 import pandas as pd
 import openai
+from dotenv import load_dotenv
+import os
+
+# Load the secrets from the secrets.toml file
+load_dotenv("secrets.toml")
+
+# Get the password and api key from the secrets file
+correct_password = os.getenv('PASSWORD')
+api_key = os.getenv('OPENAI_API_KEY')
+
+# Create a password input field
+password = st.text_input("Enter Password", type='password')
+
+# Compare the entered password with the correct password
+if password == correct_password:
+    # If the password is correct, then the user can use the app
+    st.title('Your Streamlit App')
+    
+    # Your code here
+
+
+
+----
+import streamlit as st
+import pandas as pd
+import openai
 
 def classify_page_type(url: str, title: str, meta_description: str) -> str:
     # Set your OpenAI API key
@@ -78,4 +104,6 @@ def download_link(object_to_download, download_filename, download_link_text):
             b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
             href = f'<a href="data:file/csv;base64,{b64}" download="processed_data.csv">Download Processed CSV File</a>'
             st.markdown(href, unsafe_allow_html=True)
-    
+ else:
+    # If the password is incorrect, display an error message
+    st.error('The password you entered is incorrect.')   
