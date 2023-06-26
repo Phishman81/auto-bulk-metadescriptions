@@ -131,7 +131,5 @@ def main():
         href = f'<a href="data:file/csv;base64,{b64}" download="processed_data.csv">Download CSV File</a>'
         st.markdown(href, unsafe_allow_html=True)
 
-else:
-        # If the password is incorrect, show an error message
-        st.error('The password you entered is incorrect.')
-    
+# Call the main function
+main()
