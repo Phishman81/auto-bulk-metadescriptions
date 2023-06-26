@@ -3,18 +3,47 @@ import pandas as pd
 import openai
 import base64
 
-# Get the password and api key from the secrets
-correct_password = st.secrets['password']
-api_key = st.secrets['openai_api_key']
+def check_password():
+    """Returns `True` if the user entered the correct password."""
 
-# Create a password input field
-password = st.text_input("Enter Password", type='password')
+    def password_entered():
+        """Checks whether a password entered by the user is correct."""
+        if st.session_state["password"] == st.secrets["password"]:
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # don't store the password
+        else:
+            st.session_state["password_correct"] = False
 
-# Compare the entered password with the correct password
-if password == correct_password:
-    # If the password is correct, then the user can use the app
-    st.title('Your Streamlit App')
-    
+    if "password_correct" not in st.session_state:
+        # First run, show input for password.
+        st.title('Social Media Post Generator with GPT-4')
+        st.write("")
+        st.text_input(
+            "Password", type="password", on_change=password_entered, key="password"
+        )
+        return False
+    elif not st.session_state["password_correct"]:
+        # Password not correct, show input + error.
+        st.title('Social Media Post Generator with GPT-4')
+        st.write("Welcome to the Social Media Post Generator with GPT-4! This app helps you effortlessly create engaging and compelling social media posts for platforms like LinkedIn, Instagram, Facebook, YouTube, TikTok, Snapchat, and Google Profile Page. Simply enter the topic of your post, the goal you want to achieve, the target group you're aiming for, and other preferences like content length, hashtags, emojis, list type, hook style, and communication style.")
+        st.write("Using the power of GPT-4, the app generates high-quality posts tailored to your specifications. This saves you time and effort, as you no longer need to write each post from scratch. The generated posts capture the desired tone, writing style, and even replicate the author's voice when provided with an example text.")
+        st.write("")
+        st.text_input(
+            "Password", type="password", on_change=password_entered, key="password"
+        )
+        st.error("😕 Password incorrect")
+        return False
+    else:
+        # Password correct.
+        return True
+
+# Streamlit application
+def main():
+    if not check_password():
+        return
+
+
+   
     # Function to classify page type
     def classify_page_type(url: str, title: str, meta_description: str) -> str:
         # Set your OpenAI API key
