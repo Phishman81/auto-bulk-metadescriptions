@@ -132,6 +132,6 @@ def main():
         st.markdown(href, unsafe_allow_html=True)
 
 else:
-    # If the password is incorrect, show an error message
-    st.error('The password you entered is incorrect.')
+        # If the password is incorrect, show an error message
+        st.error('The password you entered is incorrect.')
     
