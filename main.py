@@ -74,6 +74,8 @@ if password_entered and password_input == password:
                           'Careers/Jobs Page', 'Login/Register Page', 'E-commerce shopping cart page',
                           'Forum/community page', 'News Page']
 
+            # Assigning page type
+st.write("Defining the pagetype for every URL... Please wait.")
             for i in range(len(df)):
                 prompt = f"{df.iloc[i]['Address']} {df.iloc[i]['Title 1']} {df.iloc[i]['Meta Description 1']}"
 
