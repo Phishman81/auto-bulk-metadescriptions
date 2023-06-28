@@ -63,21 +63,26 @@ if password_entered and password_input == password:
             df['new metadescription'] = ''
 
             # Use GPT-3 to assign a page type
-            openai.api_key = st.secrets["openai_key"]
+openai.api_key = st.secrets["openai_key"]
 
-            page_types = ['Home Page', 'Product Detail Page', 'Category Page',
-                          'About Us Page', 'Contact Us Page', 'Blog Article Page',
-                          'Services Page', 'Landing Page', 'Privacy Policy Page',
-                          'Terms and Conditions Page', 'FAQ Page', 'Testimonials Page',
-                          'Portfolio Page', 'Case Study Page', 'Press Release Page',
-                          'Events Page', 'Resources/Downloads Page', 'Team Members Page',
-                          'Careers/Jobs Page', 'Login/Register Page', 'E-commerce shopping cart page',
-                          'Forum/community page', 'News Page']
+page_types = ['Home Page', 'Product Detail Page', 'Category Page',
+              'About Us Page', 'Contact Us Page', 'Blog Article Page',
+              'Services Page', 'Landing Page', 'Privacy Policy Page',
+              'Terms and Conditions Page', 'FAQ Page', 'Testimonials Page',
+              'Portfolio Page', 'Case Study Page', 'Press Release Page',
+              'Events Page', 'Resources/Downloads Page', 'Team Members Page',
+              'Careers/Jobs Page', 'Login/Register Page', 'E-commerce shopping cart page',
+              'Forum/community page', 'News Page']
 
-            # Assigning page type
+# Assigning page type
 st.write("Defining the pagetype for every URL... Please wait.")
-            for i in range(len(df)):
-                prompt = f"{df.iloc[i]['Address']} {df.iloc[i]['Title 1']} {df.iloc[i]['Meta Description 1']}"
+for i in range(len(df)):
+    prompt = f"{df.iloc[i]['Address']} {df.iloc[i]['Title 1']} {df.iloc[i]['Meta Description 1']}"
+
+    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=3)
+
+    df.iloc[i, df.columns.get_loc('pagetype')] = response.choices[0].text.strip()
+
 
                 response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=3)
 
