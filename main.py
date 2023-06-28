@@ -55,7 +55,7 @@ if password_input == password:
                       'Forum/community page', 'News Page']
 
             for i in range(len(df)):
-                prompt = f"{df.iloc[i, df.columns.get_loc('url')]} {df.iloc[i, df.columns.get_loc('pagetitle')]} {df.iloc[i, df.columns.get_loc('metadescription')}"
+                prompt = f"{df.iloc[i]['url']} {df.iloc[i]['pagetitle']} {df.iloc[i]['metadescription']}"
 
                 response = openai.Completion.create(engine="gpt-3.5-turbo", prompt=prompt, temperature=0.5, max_tokens=3)
 
@@ -64,7 +64,7 @@ if password_input == password:
             # Add new metadescriptions
             st.write("Creating new metadescriptions... Please wait.")
             for i in range(len(df)):
-                prompt = f"{df.iloc[i, df.columns.get_loc('url')]} {df.iloc[i, df.columns.get_loc('pagetitle')]} {df.iloc[i, df.columns.get_loc('metadescription')]}"
+                prompt = f"{df.iloc[i]['url']} {df.iloc[i]['pagetitle']} {df.iloc[i]['metadescription']}"
 
                 response = openai.Completion.create(engine="gpt-3.5-turbo", prompt=prompt, temperature=0.5, max_tokens=60)
 
@@ -83,4 +83,4 @@ if password_input == password:
 
 else:
     st.error("Incorrect password. Please try again.")
-            
+    
