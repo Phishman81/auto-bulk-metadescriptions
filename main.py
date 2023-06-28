@@ -19,10 +19,10 @@ if password_input == password:
 
         try:
             # Check if the CSV file is valid
-            valid_csv = 'url' in df.columns and 'pagetitle' in df.columns and 'metadescription' in df.columns
+            valid_csv = 'Address' in df.columns and 'Title 1' in df.columns and 'Meta Description 1' in df.columns
 
             if not valid_csv:
-                st.error("Invalid CSV file. Please ensure it contains the following columns: 'url', 'pagetitle', 'metadescription'.")
+                st.error("Invalid CSV file. Please ensure it contains the following columns: 'Address', 'Title 1', 'Meta Description 1'.")
                 raise st.StopException()
 
             # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
@@ -54,7 +54,7 @@ if password_input == password:
                       'Forum/community page', 'News Page']
 
             for i in range(len(df)):
-                prompt = f"{df.iloc[i]['url']} {df.iloc[i]['pagetitle']} {df.iloc[i]['metadescription']}"
+                prompt = f"{df.iloc[i]['Address']} {df.iloc[i]['Title 1']} {df.iloc[i]['Meta Description 1']}"
 
                 response = openai.Completion.create(engine="gpt-3.5-turbo", prompt=prompt, temperature=0.5, max_tokens=3)
 
@@ -63,7 +63,7 @@ if password_input == password:
             # Add new metadescriptions
             st.write("Creating new metadescriptions... Please wait.")
             for i in range(len(df)):
-                prompt = f"{df.iloc[i]['url']} {df.iloc[i]['pagetitle']} {df.iloc[i]['metadescription']} {df.iloc[i]['pagetype']}"
+                prompt = f"{df.iloc[i]['Address']} {df.iloc[i]['Title 1']} {df.iloc[i]['Meta Description 1']} {df.iloc[i]['pagetype']}"
 
                 response = openai.Completion.create(engine="gpt-3.5-turbo", prompt=prompt, temperature=0.5, max_tokens=60)
 
