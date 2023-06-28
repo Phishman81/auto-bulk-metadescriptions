@@ -61,7 +61,7 @@ if password_entered and password_input == password:
             for i in range(len(df)):
                 prompt = f"{df.iloc[i]['Address']} {df.iloc[i]['Title 1']} {df.iloc[i]['Meta Description 1']}"
 
-                response = openai.Completion.create(engine="gpt-3.5-turbo", prompt=prompt, temperature=0.5, max_tokens=3)
+                response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=3)
 
                 df.iloc[i, df.columns.get_loc('pagetype')] = response.choices[0].text.strip()
 
@@ -70,7 +70,7 @@ if password_entered and password_input == password:
             for i in range(len(df)):
                 prompt = f"{df.iloc[i]['Address']} {df.iloc[i]['Title 1']} {df.iloc[i]['Meta Description 1']} {df.iloc[i]['pagetype']}"
 
-                response = openai.Completion.create(engine="gpt-3.5-turbo", prompt=prompt, temperature=0.5, max_tokens=60)
+                response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=60)
 
                 df.iloc[i, df.columns.get_loc('new metadescription')] = response.choices[0].text.strip()
 
