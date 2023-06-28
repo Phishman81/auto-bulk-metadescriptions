@@ -37,10 +37,9 @@ if password_entered and password_input == password:
             if 'Content Type' in df.columns:
                 if df['Content Type'].str.contains('text/html').any():
                     # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
-                    option = st.selectbox('Do you want to generate metadescriptions for all URLs or only SEO relevant ones?',
-                                          ('All URLs', 'SEO relevant URLs'))
+                    option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs'))
 
-                    if option == 'SEO relevant URLs':
+                    if option == 'SEO Relevant URLs':
                         if 'Status Code' in df.columns and 'Indexability' in df.columns:
                             df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable') & (df['Content Type'].str.contains('text/html'))]
                         else:
@@ -59,6 +58,9 @@ if password_entered and password_input == password:
                 st.warning("The CSV does not contain the 'Content Type' column.")
                 sys.exit()
 
+            # Display count of URLs
+            st.write(f"Total URLs to be processed: {len(df)}")
+
             df['pagetype'] = ''
             df['new metadescription'] = ''
 
@@ -69,7 +71,7 @@ if password_entered and password_input == password:
                           'About Us Page', 'Contact Us Page', 'Blog Article Page',
                           'Services Page', 'Landing Page', 'Privacy Policy Page',
                           'Terms and Conditions Page', 'FAQ Page', 'Testimonials Page',
-                          'Portfolio Page', 'Case Study Page', 'Press Release Page',
+                          'Portfolio Page', 'Case StudyPage', 'Press Release Page',
                           'Events Page', 'Resources/Downloads Page', 'Team Members Page',
                           'Careers/Jobs Page', 'Login/Register Page', 'E-commerce shopping cart page',
                           'Forum/community page', 'News Page']
@@ -82,6 +84,11 @@ if password_entered and password_input == password:
                 response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=3)
 
                 df.iloc[i, df.columns.get_loc('pagetype')] = response.choices[0].text.strip()
+
+            # Intermediate result table
+            st.write("Intermediate Result - URLs per Pagetype:")
+            pagetype_counts = df['pagetype'].value_counts()
+            st.table(pagetype_counts)
 
             # Add new metadescriptions
             st.write("Creating new metadescriptions... Please wait.")
