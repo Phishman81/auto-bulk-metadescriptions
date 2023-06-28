@@ -40,56 +40,55 @@ if password_input == password:
                     valid_csv = False
 
             if valid_csv:
-                # Continue with the rest of the script.
+                # Add the pagetype column
+                df['pagetype'] = ''
 
+                # Define the page types
+                page_types = ['Home Page', 'Product Detail Page', 'Category Page', 
+                              'About Us Page', 'Contact Us Page', 'Blog Article Page',
+                              'Services Page', 'Landing Page', 'Privacy Policy Page', 
+                              'Terms and Conditions Page', 'FAQ Page', 'Testimonials Page',
+                              'Portfolio Page', 'Case Study Page', 'Press Release Page', 
+                              'Events Page', 'Resources/Downloads Page', 'Team Members Page',
+                              'Careers/Jobs Page', 'Login/Register Page', 'E-commerce shopping cart page',
+                              'Forum/community page', 'News Page']
 
-            # Add the pagetype column
-            df['pagetype'] = ''
+                # Use GPT-3 to assign a page type
+                openai.api_key = st.secrets["openai_key"]
 
-            # Define the page types
-            page_types = ['Home Page', 'Product Detail Page', 'Category Page', 
-                          'About Us Page', 'Contact Us Page', 'Blog Article Page',
-                          'Services Page', 'Landing Page', 'Privacy Policy Page', 
-                          'Terms and Conditions Page', 'FAQ Page', 'Testimonials Page',
-                          'Portfolio Page', 'Case Study Page', 'Press Release Page', 
-                          'Events Page', 'Resources/Downloads Page', 'Team Members Page',
-                          'Careers/Jobs Page', 'Login/Register Page', 'E-commerce shopping cart page',
-                          'Forum/community page', 'News Page']
+                st.write("Generating Page types... Please wait.")
+                for i in range(len(df)):
+                    prompt = f"{df.iloc[i, df.columns.get_loc('url')]} {df.iloc[i, df.columns.get_loc('pagetitle')]} {df.iloc[i, df.columns.get_loc('metadescription')]}"
 
-            # Use GPT-3 to assign a page type
-            openai.api_key = st.secrets["openai_key"]
+                    response = openai.Completion.create(engine="gpt-3.5-turbo", prompt=prompt, temperature=0.5, max_tokens=3)
 
-            st.write("Generating Page types... Please wait.")
-            for i in range(len(df)):
-                prompt = f"{df.iloc[i, df.columns.get_loc('url')]} {df.iloc[i, df.columns.get_loc('pagetitle')]} {df.iloc[i, df.columns.get_loc('metadescription')]}"
+                    df.iloc[i, df.columns.get_loc('pagetype')] = response.choices[0].text.strip()
+                st.success("Page types generated successfully!")
 
-                response = openai.Completion.create(engine="gpt-3.5-turbo", prompt=prompt, temperature=0.5, max_tokens=3)
+                # Add new metadescription column
+                df['new metadescription'] = ''
 
-                df.iloc[i, df.columns.get_loc('pagetype')] = response.choices[0].text.strip()
-            st.success("Page types generated successfully!")
+                # Use GPT-3 to generate metadescriptions
+                st.write("Generating Metadescriptions... Please wait.")
+                for i in range(len(df)):
+                    prompt = f"{df.iloc[i, df.columns.get_loc('url')]} {df.iloc[i, df.columns.get_loc('pagetitle')]} {df.iloc[i, df.columns.get_loc('metadescription')]}"
 
-            # Add new metadescription column
-            df['new metadescription'] = ''
+                    response = openai.Completion.create(engine="gpt-3.5-turbo", prompt=prompt, temperature=0.5, max_tokens=60)
 
-            # Use GPT-3 to generate metadescriptions
-            st.write("Generating Metadescriptions... Please wait.")
-            for i in range(len(df)):
-                prompt = f"{df.iloc[i, df.columns.get_loc('url')]} {df.iloc[i, df.columns.get_loc('pagetitle')]} {df.iloc[i, df.columns.get_loc('H1')]} {df.iloc[i, df.columns.get_loc('metadescription')]} {df.iloc[i, df.columns.get_loc('pagetype')]}"
-                response = openai.Completion.create(engine="gpt-3.5-turbo", prompt=prompt, temperature=0.5, max_tokens=60)
+                    df.iloc[i, df.columns.get_loc('new metadescription')] = response.choices[0].text.strip()
 
-                df.iloc[i, df.columns.get_loc('new metadescription')] = response.choices[0].text.strip()
+                st.success("Metadescriptions generated successfully!")
 
-            st.success("Metadescriptions generated successfully!")
-
-            # Download the new CSV
-            st.write(df)
-            csv = df.to_csv(index=False)
-            b64 = base64.b64encode(csv.encode()).decode()  
-            href = f'<a href="data:file/csv;base64,{b64}" download="metadescriptions.csv">Download CSV File</a>'
-            st.markdown(href, unsafe_allow_html=True)
+                # Download the new CSV
+                st.write(df)
+                csv = df.to_csv(index=False)
+                b64 = base64.b64encode(csv.encode()).decode()  
+                href = f'<a href="data:file/csv;base64,{b64}" download="metadescriptions.csv">Download CSV File</a>'
+                st.markdown(href, unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
 
 else:
     st.write("Invalid Password. Please try again.")
+                
