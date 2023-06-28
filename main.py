@@ -82,7 +82,7 @@ if password_entered and password_input == password:
             st.markdown(href, unsafe_allow_html=True)
 
         except Exception as e:
-            st.error(f"An error occurred: {str(e)}}")
+            st.error(f"An error occurred: {str(e)}")
 
 elif password_entered:  # Check if the password has been entered
     st.error("Incorrect password. Please try again.")
