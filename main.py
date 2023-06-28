@@ -23,39 +23,38 @@ if password_entered and password_input == password:
 
         try:
             # Check if the CSV file is valid
-required_columns = ['Address', 'Title 1', 'Meta Description 1', 'Content Type']
-valid_csv = all(col in df.columns for col in required_columns)
+            required_columns = ['Address', 'Title 1', 'Meta Description 1', 'Content Type']
+            valid_csv = all(col in df.columns for col in required_columns)
 
-if not valid_csv:
-    missing_columns = [col for col in required_columns if col not in df.columns]
-    missing_columns_str = ', '.join(missing_columns)
-    st.error(f"Invalid CSV file. Please ensure it contains the following columns: {missing_columns_str}.")
-    raise st.StopException()
+            if not valid_csv:
+                missing_columns = [col for col in required_columns if col not in df.columns]
+                missing_columns_str = ', '.join(missing_columns)
+                st.error(f"Invalid CSV file. Please ensure it contains the following columns: {missing_columns_str}.")
+                raise st.StopException()
 
             # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
-option = st.selectbox('Do you want to generate metadescriptions for all URLs or only SEO relevant ones?',
-                      ('All URLs', 'SEO relevant URLs'))
+            option = st.selectbox('Do you want to generate metadescriptions for all URLs or only SEO relevant ones?',
+                                  ('All URLs', 'SEO relevant URLs'))
 
-if 'Content Type' in df.columns:
-    if 'text/html' in df['Content Type'].str.lower():
-        if option == 'SEO relevant URLs':
-            if 'Status Code' in df.columns and 'Indexability' in df.columns:
-                df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable') & (df['Content Type'].str.contains('text/html', case=False))]
-            else:
-                proceed = st.radio(
-                    'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
-                    ('Yes', 'No'))
-                if proceed == 'No':
+            if 'Content Type' in df.columns:
+                if 'text/html' in df['Content Type'].str.lower():
+                    if option == 'SEO relevant URLs':
+                        if 'Status Code' in df.columns and 'Indexability' in df.columns:
+                            df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable') & (df['Content Type'].str.contains('text/html', case=False))]
+                        else:
+                            proceed = st.radio(
+                                'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
+                                ('Yes', 'No'))
+                            if proceed == 'No':
+                                raise st.StopException()
+                    else:
+                        df = df[df['Content Type'].str.contains('text/html', case=False)]
+                else:
+                    st.warning("No URLs with 'text/html' content type found in the CSV.")
                     raise st.StopException()
-        else:
-            df = df[df['Content Type'].str.contains('text/html', case=False)]
-    else:
-        st.warning("No URLs with 'text/html' content type found in the CSV.")
-        raise st.StopException()
-else:
-    st.warning("The CSV does not contain the 'Content Type' column.")
-    raise st.StopException()
-
+            else:
+                st.warning("The CSV does not contain the 'Content Type' column.")
+                raise st.StopException()
 
             df['pagetype'] = ''
             df['new metadescription'] = ''
