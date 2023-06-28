@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import openai
 import base64
+import sys
 
 # Main page title
 st.title("Auto Metadescriptions Generator")
@@ -30,31 +31,33 @@ if password_entered and password_input == password:
                 missing_columns = [col for col in required_columns if col not in df.columns]
                 missing_columns_str = ', '.join(missing_columns)
                 st.error(f"Invalid CSV file. Please ensure it contains the following columns: {missing_columns_str}.")
-                raise st.StopException()
+                sys.exit()
 
-            # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
-            option = st.selectbox('Do you want to generate metadescriptions for all URLs or only SEO relevant ones?',
-                                  ('All URLs', 'SEO relevant URLs'))
-
+            # Check if 'Content Type' column contains 'text/html'
             if 'Content Type' in df.columns:
-                if 'text/html' in df['Content Type'].str.lower():
+                if df['Content Type'].str.contains('text/html').any():
+                    # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
+                    option = st.selectbox('Do you want to generate metadescriptions for all URLs or only SEO relevant ones?',
+                                          ('All URLs', 'SEO relevant URLs'))
+
                     if option == 'SEO relevant URLs':
                         if 'Status Code' in df.columns and 'Indexability' in df.columns:
-                            df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable') & (df['Content Type'].str.contains('text/html', case=False))]
+                            df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable') & (df['Content Type'].str.contains('text/html'))]
                         else:
                             proceed = st.radio(
                                 'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
                                 ('Yes', 'No'))
                             if proceed == 'No':
-                                raise st.StopException()
+                                st.warning("Terminating the execution.")
+                                sys.exit()
                     else:
-                        df = df[df['Content Type'].str.contains('text/html', case=False)]
+                        df = df[df['Content Type'].str.contains('text/html')]
                 else:
                     st.warning("No URLs with 'text/html' content type found in the CSV.")
-                    raise st.StopException()
+                    sys.exit()
             else:
                 st.warning("The CSV does not contain the 'Content Type' column.")
-                raise st.StopException()
+                sys.exit()
 
             df['pagetype'] = ''
             df['new metadescription'] = ''
