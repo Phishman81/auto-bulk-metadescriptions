@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import openai
-import csv
 import base64
 
 # Main page title
@@ -24,7 +23,7 @@ if password_input == password:
 
             if not valid_csv:
                 st.error("Invalid CSV file. Please ensure it contains the following columns: 'url', 'pagetitle', 'metadescription'.")
-                return
+                raise st.StopException()
 
             # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
             option = st.selectbox('Do you want to generate metadescriptions for all URLs or only SEO relevant ones?', 
@@ -37,7 +36,7 @@ if password_input == password:
                     proceed = st.radio('The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?', 
                                        ('Yes', 'No'))
                     if proceed == 'No':
-                        return
+                        raise st.StopException()
 
             df['pagetype'] = ''
             df['new metadescription'] = ''
@@ -64,15 +63,14 @@ if password_input == password:
             # Add new metadescriptions
             st.write("Creating new metadescriptions... Please wait.")
             for i in range(len(df)):
-                prompt = f"{df.iloc[i]['url']} {df.iloc[i]['pagetitle']} {df.iloc[i]['metadescription']}"
+                prompt = f"{df.iloc[i]['url']} {df.iloc[i]['pagetitle']} {df.iloc[i]['metadescription']} {df.iloc[i]['pagetype']}"
 
                 response = openai.Completion.create(engine="gpt-3.5-turbo", prompt=prompt, temperature=0.5, max_tokens=60)
 
                 df.iloc[i, df.columns.get_loc('new metadescription')] = response.choices[0].text.strip()
 
-            st.write("Metadescriptions created.")
-
-            # Download new CSV
+            # Allow the user to download the new CSV
+            st.success("Metadescriptions have been created successfully! You can download the updated CSV below.")
             csv = df.to_csv(index=False)
             b64 = base64.b64encode(csv.encode()).decode()  
             href = f'<a href="data:file/csv;base64,{b64}" download="new_metadescriptions.csv">Download CSV File</a>'
@@ -83,4 +81,4 @@ if password_input == password:
 
 else:
     st.error("Incorrect password. Please try again.")
-    
+                                           
