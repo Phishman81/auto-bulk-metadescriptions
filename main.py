@@ -9,8 +9,12 @@ st.title("Auto Metadescriptions Generator")
 # Password for access
 password = st.secrets["password"]
 password_input = st.text_input("Enter Password", type="password")
+password_entered = False  # Track if the password has been entered
 
-if password_input == password:
+if password_input:  # Check if a password has been entered
+    password_entered = True  # Set the flag to True
+
+if password_entered and password_input == password:
     # File upload
     file = st.file_uploader("Upload a CSV File", type=['csv'])
 
@@ -26,15 +30,16 @@ if password_input == password:
                 raise st.StopException()
 
             # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
-            option = st.selectbox('Do you want to generate metadescriptions for all URLs or only SEO relevant ones?', 
+            option = st.selectbox('Do you want to generate metadescriptions for all URLs or only SEO relevant ones?',
                                   ('All URLs', 'SEO relevant URLs'))
 
             if option == 'SEO relevant URLs':
                 if 'Status Code' in df.columns and 'Indexability' in df.columns:
                     df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable')]
                 else:
-                    proceed = st.radio('The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?', 
-                                       ('Yes', 'No'))
+                    proceed = st.radio(
+                        'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
+                        ('Yes', 'No'))
                     if proceed == 'No':
                         raise st.StopException()
 
@@ -44,14 +49,14 @@ if password_input == password:
             # Use GPT-3 to assign a page type
             openai.api_key = st.secrets["openai_key"]
 
-            page_types = ['Home Page', 'Product Detail Page', 'Category Page', 
-                      'About Us Page', 'Contact Us Page', 'Blog Article Page',
-                      'Services Page', 'Landing Page', 'Privacy Policy Page', 
-                      'Terms and Conditions Page', 'FAQ Page', 'Testimonials Page',
-                      'Portfolio Page', 'Case Study Page', 'Press Release Page', 
-                      'Events Page', 'Resources/Downloads Page', 'Team Members Page',
-                      'Careers/Jobs Page', 'Login/Register Page', 'E-commerce shopping cart page',
-                      'Forum/community page', 'News Page']
+            page_types = ['Home Page', 'Product Detail Page', 'Category Page',
+                          'About Us Page', 'Contact Us Page', 'Blog Article Page',
+                          'Services Page', 'Landing Page', 'Privacy Policy Page',
+                          'Terms and Conditions Page', 'FAQ Page', 'Testimonials Page',
+                          'Portfolio Page', 'Case Study Page', 'Press Release Page',
+                          'Events Page', 'Resources/Downloads Page', 'Team Members Page',
+                          'Careers/Jobs Page', 'Login/Register Page', 'E-commerce shopping cart page',
+                          'Forum/community page', 'News Page']
 
             for i in range(len(df)):
                 prompt = f"{df.iloc[i]['Address']} {df.iloc[i]['Title 1']} {df.iloc[i]['Meta Description 1']}"
@@ -72,13 +77,12 @@ if password_input == password:
             # Allow the user to download the new CSV
             st.success("Metadescriptions have been created successfully! You can download the updated CSV below.")
             csv = df.to_csv(index=False)
-            b64 = base64.b64encode(csv.encode()).decode()  
+            b64 = base64.b64encode(csv.encode()).decode()
             href = f'<a href="data:file/csv;base64,{b64}" download="new_metadescriptions.csv">Download CSV File</a>'
             st.markdown(href, unsafe_allow_html=True)
 
         except Exception as e:
-            st.error(f"An error occurred: {str(e)}")
+            st.error(f"An error occurred: {str(e)}}")
 
-else:
+elif password_entered:  # Check if the password has been entered
     st.error("Incorrect password. Please try again.")
-                                           
