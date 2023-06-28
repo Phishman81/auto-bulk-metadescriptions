@@ -30,13 +30,18 @@ if password_input == password:
             st.success("File uploaded successfully!")
 
             # If SEO relevant URLs is selected
+            valid_csv = True
             if option == 'Generate Metadescriptions for only SEO Relevant URLs':
                 if 'Status Code' in df.columns and 'Indexability' in df.columns:
                     # Filter the dataframe
                     df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable')]
                 else:
                     st.error("The columns 'Status Code' and 'Indexability' are missing. Please select the other option.")
-                    return
+                    valid_csv = False
+
+            if valid_csv:
+                # Continue with the rest of the script.
+
 
             # Add the pagetype column
             df['pagetype'] = ''
@@ -88,4 +93,3 @@ if password_input == password:
 
 else:
     st.write("Invalid Password. Please try again.")
-                
