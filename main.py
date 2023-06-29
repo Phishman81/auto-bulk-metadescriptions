@@ -99,7 +99,37 @@ if password_entered and password_input == password:
                 processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype']]
                 st.dataframe(processed_urls_df)
 
+# Intermediate result table
+st.write("Intermediate Result - Processed URLs with their Pagetypes:")
+processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype']]
+st.dataframe(processed_urls_df)
 
+# New metadescription generation
+st.write("Generating new metadescriptions for every URL... Please wait.")
+df['new_metadescription'] = ''
+
+for i in range(len(df)):
+    address = df.iloc[i]['Address']
+    title = df.iloc[i]['Title 1']
+    meta_description = df.iloc[i]['Meta Description 1']
+    pagetype = df.iloc[i]['pagetype']
+
+    prompt = f"""
+    You are an AI language model trained on a diverse range of internet text. Generate a concise and engaging meta description for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', and current meta description '{meta_description}'.
+    """
+
+    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=50)
+
+    new_metadescription = response.choices[0].text.strip()
+
+    df.iloc[i, df.columns.get_loc('new_metadescription')] = new_metadescription
+
+    # Display result table
+    st.write("Result - Processed URLs with their Pagetypes and New Metadescriptions:")
+    processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype', 'new_metadescription']]
+    st.dataframe(processed_urls_df)
+
+    
 
                 # Allow the user to download the new CSV
                 st.success("Metadescriptions have been created successfully! You can download the updated CSV below.")
