@@ -52,9 +52,9 @@ if password_entered and password_input == password:
                             if proceed == 'No':
                                 st.warning("Terminating the execution.")
                                 sys.exit()
-else:
-    st.warning("No URLs with 'text/html' content type found in the CSV.")
-    sys.exit()
+            else:
+                st.warning("No URLs with 'text/html' content type found in the CSV.")
+                sys.exit()
 
 
             # Display count of URLs
