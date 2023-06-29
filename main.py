@@ -66,7 +66,6 @@ if password_entered and password_input == password:
 
             if start_button:
                 df['pagetype'] = ''
-                df['new metadescription'] = ''
 
                 # Use GPT-3 to assign a page type
                 openai.api_key = st.secrets["openai_key"]
@@ -76,32 +75,29 @@ if password_entered and password_input == password:
                               'Services Page', 'Landing Page', 'Privacy Policy Page',
                               'Terms and Conditions Page', 'FAQ Page', 'Testimonials Page',
                               'Portfolio Page', 'Case Study Page', 'Press Release Page',
-                              'Events Page', 'Resources/Downloads PagePage', 'Team Members Page',
+                              'Events Page', 'Resources/Downloads Page', 'Team Members Page',
                               'Careers/Jobs Page', 'Login/Register Page', 'E-commerce shopping cart page',
                               'Forum/community page', 'News Page']
 
                 # Assigning page type
                 st.write("Defining the pagetype for every URL... Please wait.")
                 for i in range(len(df)):
-                    prompt = f"{df.iloc[i]['Address']} {df.iloc[i]['Title 1']} {df.iloc[i]['Meta Description 1']}"
+                    address = df.iloc[i]['Address']
+                    title = df.iloc[i]['Title 1']
+                    meta_description = df.iloc[i]['Meta Description 1']
 
-                    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=3)
+                    prompt = f"You are an SEO expert. From the best of your knowledge, please assign the most suitable pagetype from the following list:\n{page_types}\n\nFor a page with the URL: {address}\nPage Title: {title}\nMeta Description: {meta_description}\n\nUsing the given information, define the most suitable pagetype from the options provided. Do not write anything else than that."
 
-                    df.iloc[i, df.columns.get_loc('pagetype')] = response.choices[0].text.strip()
+                    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=1)
+
+                    pagetype = response.choices[0].text.strip()
+
+                    df.iloc[i, df.columns.get_loc('pagetype')] = pagetype
 
                 # Intermediate result table
                 st.write("Intermediate Result - URLs per Pagetype:")
                 pagetype_counts = df['pagetype'].value_counts()
                 st.table(pagetype_counts)
-
-                # Add new metadescriptions
-                st.write("Creating new metadescriptions... Please wait.")
-                for i in range(len(df)):
-                    prompt = f"{df.iloc[i]['Address']} {df.iloc[i]['Title 1']} {df.iloc[i]['Meta Description 1']} {df.iloc[i]['pagetype']}"
-
-                    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=60)
-
-                    df.iloc[i, df.columns.get_loc('new metadescription')] = response.choices[0].text.strip()
 
                 # Allow the user to download the new CSV
                 st.success("Metadescriptions have been created successfully! You can download the updated CSV below.")
