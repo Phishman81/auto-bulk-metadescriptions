@@ -37,7 +37,7 @@ if password_entered and password_input == password:
             if 'Content Type' in df.columns:
                 if df['Content Type'].str.contains('text/html').any():
                     # Exclude image URLs
-                    df = df[~df['Address'].str.contains(r'\.(jpeg|jpg|gif|png|svg|bmp|tiff|webp|heic|ico|psd|ai|eps)$')]
+                    df = df[~df['Address'].str.contains('\.(jpeg|jpg|gif|png|svg|bmp|tiff|webp|heic|ico|psd|ai|eps)$', regex=True)]
 
                     # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
                     option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs'))
@@ -92,6 +92,12 @@ if password_entered and password_input == password:
 
                     df.iloc[i, df.columns.get_loc('pagetype')] = pagetype
 
+                # Intermediate result table
+                st.write("Intermediate Result - Processed URLs with their Pagetypes:")
+                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype']]
+                st.dataframe(processed_urls_df)
+
+                # New metadescription generation
                 st.write("Generating new metadescriptions for every URL... Please wait.")
                 df['new_metadescription'] = ''
 
@@ -101,9 +107,11 @@ if password_entered and password_input == password:
                     meta_description = df.iloc[i]['Meta Description 1']
                     pagetype = df.iloc[i]['pagetype']
 
-                    prompt = f""" You are an SEO Expert who crafts excellent meta descriptions. Generate a concise and engaging meta description of maximum 150 characters for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', and a current meta description that looks like the following but needs improvement '{meta_description}'. """
+                    prompt = f"""
+                    You are an AI language model trained on a diverse range of internet text. Generate a concise and engaging meta description for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', and current meta description '{meta_description}'.
+                    """
 
-                    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=50)
+                    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=80)
 
                     new_metadescription = response.choices[0].text.strip()
 
