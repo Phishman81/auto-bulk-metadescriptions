@@ -96,7 +96,7 @@ if password_entered and password_input == password:
 
                 # Intermediate result table
                 st.write("Intermediate Result - Processed URLs with their Pagetypes:")
-                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype']]
+                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'H1-1', 'pagetype','Status Code', 'Indexability']]
                 st.dataframe(processed_urls_df)
 
                 # New metadescription generation
