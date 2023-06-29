@@ -45,7 +45,7 @@ if password_entered and password_input == password:
 
                     if option == 'SEO Relevant URLs':
                         if 'Status Code' in df.columns and 'Indexability' in df.columns:
-                            df = df[~df['Indexability'].str.contains('non-indexable', na=False)]
+                            df = df[~df['Indexability'].str.contains('Non-Indexable', na=False)]
                             df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable')]
                         else:
                             proceed = st.radio(
