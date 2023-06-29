@@ -96,8 +96,9 @@ if password_entered and password_input == password:
 
                 # Intermediate result table
                 st.write("Intermediate Result - Processed URLs with their Pagetypes:")
-                processed_urls_df = df[['Address', 'Title 1', 'pagetype']]
+                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype']]
                 st.dataframe(processed_urls_df)
+
 
 
                 # Allow the user to download the new CSV
