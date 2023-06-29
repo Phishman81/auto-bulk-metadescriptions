@@ -113,7 +113,7 @@ if password_entered and password_input == password:
 
                         prompt = f""" You are an SEO Expert who crafts excellent meta descriptions. Generate a concise and engaging meta description of maximum 150 characters for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', and a current meta description that looks like the following but needs improvement '{meta_description}'. """
 
-                        response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=100)
+                        response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=50)
 
                         new_metadescription = response.choices[0].text.strip()
 
