@@ -95,9 +95,10 @@ if password_entered and password_input == password:
                     df.iloc[i, df.columns.get_loc('pagetype')] = pagetype
 
                 # Intermediate result table
-                st.write("Intermediate Result - URLs per Pagetype:")
-                pagetype_counts = df['pagetype'].value_counts()
-                st.table(pagetype_counts)
+                st.write("Intermediate Result - Processed URLs with their Pagetypes:")
+                processed_urls_df = df[['Address', 'Title 1', 'pagetype']]
+                st.dataframe(processed_urls_df)
+
 
                 # Allow the user to download the new CSV
                 st.success("Metadescriptions have been created successfully! You can download the updated CSV below.")
