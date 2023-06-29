@@ -97,37 +97,39 @@ if password_entered and password_input == password:
                 processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype']]
                 st.dataframe(processed_urls_df)
 
-                # New metadescription generation
-                st.write("Generating new metadescriptions for every URL... Please wait.")
-                df['new_metadescription'] = ''
+                # Create metadescriptions button
+                create_metadescriptions_button = st.button("Create Metadescriptions Now")
 
-                for i in range(len(df)):
-                    address = df.iloc[i]['Address']
-                    title = df.iloc[i]['Title 1']
-                    meta_description = df.iloc[i]['Meta Description 1']
-                    pagetype = df.iloc[i]['pagetype']
+                if create_metadescriptions_button:
+                    # New metadescription generation
+                    st.write("Generating new metadescriptions for every URL... Please wait.")
+                    df['new_metadescription'] = ''
 
-                    prompt = f"""
-                    You are an SEO Expert who crafts excellent meta descriptions. Generate a concise and engaging meta description of maximum 150 characters for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', and a current meta description that looks like the following but needs improvement '{meta_description}'.
-                    """
+                    for i in range(len(df)):
+                        address = df.iloc[i]['Address']
+                        title = df.iloc[i]['Title 1']
+                        meta_description = df.iloc[i]['Meta Description 1']
+                        pagetype = df.iloc[i]['pagetype']
 
-                    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=100)
+                        prompt = f""" You are an SEO Expert who crafts excellent meta descriptions. Generate a concise and engaging meta description of maximum 150 characters for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', and a current meta description that looks like the following but needs improvement '{meta_description}'. """
 
-                    new_metadescription = response.choices[0].text.strip()
+                        response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=100)
 
-                    df.iloc[i, df.columns.get_loc('new_metadescription')] = new_metadescription
+                        new_metadescription = response.choices[0].text.strip()
 
-                # Display result table
-                st.write("Result - Processed URLs with their Pagetypes and New Metadescriptions:")
-                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype', 'new_metadescription']]
-                st.dataframe(processed_urls_df)
+                        df.iloc[i, df.columns.get_loc('new_metadescription')] = new_metadescription
 
-                # Allow the user to download the new CSV
-                st.success("Metadescriptions have been created successfully! You can download the updated CSV below.")
-                csv = df.to_csv(index=False)
-                b64 = base64.b64encode(csv.encode()).decode()
-                href = f'<a href="data:file/csv;base64,{b64}" download="new_metadescriptions.csv">Download CSV File</a>'
-                st.markdown(href, unsafe_allow_html=True)
+                    # Display result table
+                    st.write("Result - Processed URLs with their Pagetypes and New Metadescriptions:")
+                    processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype', 'new_metadescription']]
+                    st.dataframe(processed_urls_df)
+
+                    # Allow the user to download the new CSV
+                    st.success("Metadescriptions have been created successfully! You can download the updated CSV below.")
+                    csv = df.to_csv(index=False)
+                    b64 = base64.b64encode(csv.encode()).decode()
+                    href = f'<a href="data:file/csv;base64,{b64}" download="new_metadescriptions.csv">Download CSV File</a>'
+                    st.markdown(href, unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
