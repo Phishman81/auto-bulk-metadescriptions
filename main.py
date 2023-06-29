@@ -34,24 +34,24 @@ if password_entered and password_input == password:
                 sys.exit()
 
             # Check if 'Content Type' column contains 'text/html' and exclude image URLs
-if 'Content Type' in df.columns:
-    if df['Content Type'].str.contains('text/html').any():
-        # Exclude image URLs
-        df = df[~df['Address'].str.contains('\.(jpeg|jpg|gif|png)$', regex=True)]
+            if 'Content Type' in df.columns:
+                if df['Content Type'].str.contains('text/html').any():
+                    # Exclude image URLs
+                    df = df[~df['Address'].str.contains('\.(jpeg|jpg|gif|png)$', regex=True)]
 
-        # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
-        option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs'))
+                    # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
+                    option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs'))
 
-        if option == 'SEO Relevant URLs':
-            if 'Status Code' in df.columns and 'Indexability' in df.columns:
-                df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable')]
-            else:
-                proceed = st.radio(
-                    'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
-                    ('Yes', 'No'))
-                if proceed == 'No':
-                    st.warning("Terminating the execution.")
-                    sys.exit()
+                    if option == 'SEO Relevant URLs':
+                        if 'Status Code' in df.columns and 'Indexability' in df.columns:
+                            df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable')]
+                        else:
+                            proceed = st.radio(
+                                'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
+                                ('Yes', 'No'))
+                            if proceed == 'No':
+                                st.warning("Terminating the execution.")
+                                sys.exit()
 else:
     st.warning("No URLs with 'text/html' content type found in the CSV.")
     sys.exit()
