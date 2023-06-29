@@ -107,9 +107,7 @@ if password_entered and password_input == password:
                     meta_description = df.iloc[i]['Meta Description 1']
                     pagetype = df.iloc[i]['pagetype']
 
-                    prompt = f"""
-                    You are an AI language model trained on a diverse range of internet text. Generate a concise and engaging meta description for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', and current meta description '{meta_description}'.
-                    """
+                    prompt = f""" You are an SEO Expert who crafts excellent meta descriptions. Generate a concise and engaging meta description of maximum 150 characters for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', and a current meta description that looks like the following but needs improvement '{meta_description}'. """
 
                     response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=80)
 
