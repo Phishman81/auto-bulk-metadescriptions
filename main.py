@@ -83,9 +83,10 @@ if password_entered and password_input == password:
                 for i in range(len(df)):
                     address = df.iloc[i]['Address']
                     title = df.iloc[i]['Title 1']
+                    h1 = df.iloc[i]['H1-1']
                     meta_description = df.iloc[i]['Meta Description 1']
 
-                    prompt = f"You are an SEO expert. From the best of your knowledge, please assign the most suitable pagetype from the following list:\n{page_types}\n\nFor a page with the URL: {address}\nPage Title: {title}\nMeta Description: {meta_description}\n\nUsing the given information, define the most suitable pagetype from the options provided. Do not write anything else than that."
+                    prompt = f"You are an SEO expert. From the best of your knowledge, please assign the most suitable pagetype from the following list:\n{page_types}\n\nFor a page with the URL: {address}\nPage a heading: {h1}\n Title: {title}\nMeta Description: {meta_description}\n\nUsing the given information, define the most suitable pagetype from the options provided. Do not write anything else than that."
 
                     response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=50)
 
@@ -105,10 +106,11 @@ if password_entered and password_input == password:
                 for i in range(len(df)):
                     address = df.iloc[i]['Address']
                     title = df.iloc[i]['Title 1']
+                    h1 = df.iloc[i]['H1-1']
                     meta_description = df.iloc[i]['Meta Description 1']
                     pagetype = df.iloc[i]['pagetype']
 
-                    prompt = f""" You are an SEO Expert who crafts excellent meta descriptions. Generate a concise and engaging meta description of maximum 150 characters for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', and a current meta description that looks like the following but needs improvement '{meta_description}'. """
+                    prompt = f""" You are an SEO Expert who crafts excellent meta descriptions. Generate a concise and engaging meta description of maximum 150 characters for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', the main heading '{h1}' and a current meta description that looks like the following but needs improvement '{meta_description}'. """
 
                     response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=80)
 
