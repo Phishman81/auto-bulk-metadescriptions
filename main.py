@@ -33,30 +33,29 @@ if password_entered and password_input == password:
                 st.error(f"Invalid CSV file. Please ensure it contains the following columns: {missing_columns_str}.")
                 sys.exit()
 
-            # Check if 'Content Type' column contains 'text/html'
-            if 'Content Type' in df.columns:
-                if df['Content Type'].str.contains('text/html').any():
-                    # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
-                    option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs'))
+            # Check if 'Content Type' column contains 'text/html' and exclude image URLs
+if 'Content Type' in df.columns:
+    if df['Content Type'].str.contains('text/html').any():
+        # Exclude image URLs
+        df = df[~df['Address'].str.contains('\.(jpeg|jpg|gif|png)$', regex=True)]
 
-                    if option == 'SEO Relevant URLs':
-                        if 'Status Code' in df.columns and 'Indexability' in df.columns:
-                            df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable') & (df['Content Type'].str.contains('text/html'))]
-                        else:
-                            proceed = st.radio(
-                                'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
-                                ('Yes', 'No'))
-                            if proceed == 'No':
-                                st.warning("Terminating the execution.")
-                                sys.exit()
-                    else:
-                        df = df[df['Content Type'].str.contains('text/html')]
-                else:
-                    st.warning("No URLs with 'text/html' content type found in the CSV.")
-                    sys.exit()
+        # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
+        option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs'))
+
+        if option == 'SEO Relevant URLs':
+            if 'Status Code' in df.columns and 'Indexability' in df.columns:
+                df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable')]
             else:
-                st.warning("The CSV does not contain the 'Content Type' column.")
-                sys.exit()
+                proceed = st.radio(
+                    'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
+                    ('Yes', 'No'))
+                if proceed == 'No':
+                    st.warning("Terminating the execution.")
+                    sys.exit()
+else:
+    st.warning("No URLs with 'text/html' content type found in the CSV.")
+    sys.exit()
+
 
             # Display count of URLs
             st.write(f"Total URLs to be processed: {len(df)}")
