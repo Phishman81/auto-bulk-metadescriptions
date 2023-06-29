@@ -37,7 +37,7 @@ if password_entered and password_input == password:
             if 'Content Type' in df.columns:
                 if df['Content Type'].str.contains('text/html').any():
                     # Exclude image URLs
-                    df = df[~df['Address'].str.contains('\.(jpeg|jpg|gif|png)$', regex=True)]
+                    df = df[~df['Address'].str.contains('\.(jpeg|jpg|gif|png|svg)$', regex=True)]
 
                     # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
                     option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs'))
