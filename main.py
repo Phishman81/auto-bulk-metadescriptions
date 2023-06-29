@@ -39,7 +39,6 @@ if password_entered and password_input == password:
                     # Exclude image URLs
                     df = df[~df['Address'].str.contains('\.(jpeg|jpg|gif|png|svg|bmp|tiff|webp|heic|ico|psd|ai|eps)$', regex=True)]
 
-
                     # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
                     option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs'))
 
@@ -56,7 +55,6 @@ if password_entered and password_input == password:
             else:
                 st.warning("No URLs with 'text/html' content type found in the CSV.")
                 sys.exit()
-
 
             # Display count of URLs
             st.write(f"Total URLs to be processed: {len(df)}")
@@ -99,37 +97,30 @@ if password_entered and password_input == password:
                 processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype']]
                 st.dataframe(processed_urls_df)
 
-# Intermediate result table
-st.write("Intermediate Result - Processed URLs with their Pagetypes:")
-processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype']]
-st.dataframe(processed_urls_df)
+                # New metadescription generation
+                st.write("Generating new metadescriptions for every URL... Please wait.")
+                df['new_metadescription'] = ''
 
-# New metadescription generation
-st.write("Generating new metadescriptions for every URL... Please wait.")
-df['new_metadescription'] = ''
+                for i in range(len(df)):
+                    address = df.iloc[i]['Address']
+                    title = df.iloc[i]['Title 1']
+                    meta_description = df.iloc[i]['Meta Description 1']
+                    pagetype = df.iloc[i]['pagetype']
 
-for i in range(len(df)):
-    address = df.iloc[i]['Address']
-    title = df.iloc[i]['Title 1']
-    meta_description = df.iloc[i]['Meta Description 1']
-    pagetype = df.iloc[i]['pagetype']
+                    prompt = f"""
+                    You are an AI language model trained on a diverse range of internet text. Generate a concise and engaging meta description for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', and current meta description '{meta_description}'.
+                    """
 
-    prompt = f"""
-    You are an AI language model trained on a diverse range of internet text. Generate a concise and engaging meta description for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', and current meta description '{meta_description}'.
-    """
+                    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=50)
 
-    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=50)
+                    new_metadescription = response.choices[0].text.strip()
 
-    new_metadescription = response.choices[0].text.strip()
+                    df.iloc[i, df.columns.get_loc('new_metadescription')] = new_metadescription
 
-    df.iloc[i, df.columns.get_loc('new_metadescription')] = new_metadescription
-
-    # Display result table
-    st.write("Result - Processed URLs with their Pagetypes and New Metadescriptions:")
-    processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype', 'new_metadescription']]
-    st.dataframe(processed_urls_df)
-
-    
+                # Display result table
+                st.write("Result - Processed URLs with their Pagetypes and New Metadescriptions:")
+                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype', 'new_metadescription']]
+                st.dataframe(processed_urls_df)
 
                 # Allow the user to download the new CSV
                 st.success("Metadescriptions have been created successfully! You can download the updated CSV below.")
