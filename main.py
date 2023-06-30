@@ -17,29 +17,32 @@ if password_input:  # Check if a password has been entered
 
 if password_entered and password_input == password:
     # File upload
-    file = st.file_uploader("Upload a CSV File", type=['csv'])
+file = st.file_uploader("Upload a CSV File", type=['csv'])
 
-    if file is not None:
-        df = pd.read_csv(file)
+if file is not None:
+    st.write("Uploaded file is being processed...")
+    df = pd.read_csv(file)
 
-        try:
-            # Check if the CSV file is valid
-            required_columns = ['Address', 'Title 1', 'Meta Description 1', 'Content Type']
-            valid_csv = all(col in df.columns for col in required_columns)
+    try:
+        # Check if the CSV file is valid
+        st.write("Checking if the relevant columns are present in the CSV file...")
+        required_columns = ['Address', 'Title 1', 'Meta Description 1', 'Content Type']
+        valid_csv = all(col in df.columns for col in required_columns)
 
-            if not valid_csv:
-                missing_columns = [col for col in required_columns if col not in df.columns]
-                missing_columns_str = ', '.join(missing_columns)
-                st.error(f"Invalid CSV file. Please ensure it contains the following columns: {missing_columns_str}.")
-                sys.exit()
+        if not valid_csv:
+            missing_columns = [col for col in required_columns if col not in df.columns]
+            missing_columns_str = ', '.join(missing_columns)
+            st.error(f"Invalid CSV file. Please ensure it contains the following columns: {missing_columns_str}.")
+            sys.exit()
 
-            # Check if 'Content Type' column contains 'text/html' and exclude image URLs
-            if 'Content Type' in df.columns:
-                if df['Content Type'].str.contains('text/html').any():
-                    # Exclude image URLs
-                    df = df[~df['Address'].str.contains('image/svg\+xml|\.jpeg|\.jpg|\.gif|\.png|\.svg|\.bmp|\.tiff|\.webp|\.heic|\.ico|\.psd|\.ai|\.eps$', regex=True)]
-
-
+        # Check if 'Content Type' column contains 'text/html' and exclude image URLs
+        st.write("Filtering for 'text/html' URLs and excluding image URLs...")
+        if 'Content Type' in df.columns:
+            if df['Content Type'].str.contains('text/html').any():
+                # Exclude image URLs
+                df = df[~df['Address'].str.contains('image/svg\+xml|\.jpeg|\.jpg|\.gif|\.png|\.svg|\.bmp|\.tiff|\.webp|\.heic|\.ico|\.psd|\.ai|\.eps$', regex=True)]
+        
+    
                     # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
                     option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs'))
 
