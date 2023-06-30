@@ -39,13 +39,29 @@ if password_entered and password_input == password:
             st.write("Filtering for 'text/html' URLs and excluding image URLs...")
             if 'Content Type' in df.columns:
                 if df['Content Type'].str.contains('text/html').any():
-                    # Exclude image URLs
+
                     df = df[~df['Address'].str.contains('image/svg\+xml|\.jpeg|\.jpg|\.gif|\.png|\.svg|\.bmp|\.tiff|\.webp|\.heic|\.ico|\.psd|\.ai|\.eps$', regex=True)]
 
-                    # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
-                    option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs'))
+                    option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs', 'All Missing Meta Descriptions', 'Missing Meta Descriptions for SEO Relevant Pages'))
+                    if option == 'All URLs':
+                        pass
 
-                    if option == 'SEO Relevant URLs':
+                    elif option == 'All Missing Meta Descriptions':
+                        df = df[df['Meta Description 1'].isna() | df['Meta Description 1'] == ""]
+
+                    elif option == 'Missing Meta Descriptions for SEO Relevant Pages':
+                        if 'Status Code' in df.columns and 'Indexability' in df.columns:
+                            df['Indexability'] = df['Indexability'].str.strip().str.lower()
+                            df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable') & (df['Meta Description 1'].isna() | df['Meta Description 1'] == "")]
+                        else:
+                            proceed = st.radio(
+                                'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
+                                ('Yes', 'No'))
+                            if proceed == 'No':
+                                st.warning("Terminating the execution.")
+                                sys.exit()
+
+                    elif option == 'SEO Relevant URLs':
                         if 'Status Code' in df.columns and 'Indexability' in df.columns:
                             df['Indexability'] = df['Indexability'].str.strip().str.lower()
                             df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable')]
@@ -56,82 +72,80 @@ if password_entered and password_input == password:
                             if proceed == 'No':
                                 st.warning("Terminating the execution.")
                                 sys.exit()
-            else:
-                st.warning("No URLs with 'text/html' content type found in the CSV.")
-                sys.exit()
+                    else:
+                        st.warning("Invalid option selected.")
 
-            # Display count of URLs
-            st.write(f"Total URLs to be processed: {len(df)}")
+                    if df.empty:
+                        st.warning("No URLs matching the conditions were found.")
+                        sys.exit()
+                else:
+                    st.warning("No URLs with 'text/html' content type found in the CSV.")
+                    sys.exit()
 
-            # Button to initiate processing
-            start_button = st.button(f"Start Processing {len(df)} URLs")
+                st.write(f"Total URLs to be processed: {len(df)}")
 
-            if start_button:
-                df['pagetype'] = ''
+                start_button = st.button(f"Start Processing {len(df)} URLs")
 
-                # Use GPT-3 to assign a page type
-                openai.api_key = st.secrets["openai_key"]
+                if start_button:
+                    df['pagetype'] = ''
 
-                page_types = ['Home Page', 'Product Detail Page', 'Category Page',
-                              'About Us Page', 'Contact Us Page', 'Blog Article Page',
-                              'Services Page', 'Landing Page', 'Privacy Policy Page',
-                              'Terms and Conditions Page', 'FAQ Page', 'Testimonials Page',
-                              'Portfolio Page', 'Case Study Page', 'Press Release Page',
-                              'Events Page', 'Resources/Downloads Page', 'Team Members Page',
-                              'Careers/Jobs Page', 'Login/Register Page', 'E-commerce shopping cart page',
-                              'Forum/community page', 'News Page']
+                    openai.api_key = st.secrets["openai_key"]
 
-                # Assigning page type
-                st.write("Defining the pagetype for every URL... Please wait.")
-                for i in range(len(df)):
-                    address = df.iloc[i]['Address']
-                    title = df.iloc[i]['Title 1']
-                    h1 = df.iloc[i]['H1-1']
-                    meta_description = df.iloc[i]['Meta Description 1']
+                    page_types = ['Home Page', 'Product Detail Page', 'Category Page',
+                                'About Us Page', 'Contact Us Page', 'Blog Article Page',
+                                'Services Page', 'Landing Page', 'Privacy Policy Page',
+                                'Terms and Conditions Page', 'FAQ Page', 'Testimonials Page',
+                                'Portfolio Page', 'Case Study Page', 'Press Release Page',
+                                'Events Page', 'Resources/Downloads Page', 'Team Members Page',
+                                'Careers/Jobs Page', 'Login/Register Page', 'E-commerce shopping cart page',
+                                'Forum/community page', 'News Page']
 
-                    prompt = f"You are an SEO expert. From the best of your knowledge, please assign the most suitable pagetype from the following list:\n{page_types}\n\nFor a page with the URL: {address}\nPage a heading: {h1}\n Title: {title}\nMeta Description: {meta_description}\n\nUsing the given information, define the most suitable pagetype from the options provided. Do not write anything else than that."
+                    st.write("Defining the pagetype for every URL... Please wait.")
+                    for i in range(len(df)):
+                        address = df.iloc[i]['Address']
+                        title = df.iloc[i]['Title 1']
+                        h1 = df.iloc[i]['H1-1']
+                        meta_description = df.iloc[i]['Meta Description 1']
 
-                    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=50)
+                        prompt = f"You are an SEO expert. From the best of your knowledge, please assign the most suitable pagetype from the following list:\n{page_types}\n\nFor a page with the URL: {address}\nPage a heading: {h1}\n Title: {title}\nMeta Description: {meta_description}\n\nUsing the given information, define the most suitable pagetype from the options provided. Do not write anything else than that."
 
-                    pagetype = response.choices[0].text.strip()
+                        response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=50)
 
-                    df.iloc[i, df.columns.get_loc('pagetype')] = pagetype
+                        pagetype = response.choices[0].text.strip()
 
-                # Intermediate result table
-                st.write("Intermediate Result - Processed URLs with their Pagetypes:")
-                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'Meta Description 1', 'H1-1', 'pagetype','Status Code', 'Indexability']]
-                st.dataframe(processed_urls_df)
+                        df.iloc[i, df.columns.get_loc('pagetype')] = pagetype
 
-                # New metadescription generation
-                st.write("Generating new metadescriptions for every URL... Please wait.")
-                df['new_metadescription'] = ''
+                    st.write("Intermediate Result - Processed URLs with their Pagetypes:")
+                    processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'Meta Description 1', 'H1-1', 'pagetype','Status Code', 'Indexability']]
+                    st.dataframe(processed_urls_df)
 
-                for i in range(len(df)):
-                    address = df.iloc[i]['Address']
-                    title = df.iloc[i]['Title 1']
-                    h1 = df.iloc[i]['H1-1']
-                    meta_description = df.iloc[i]['Meta Description 1']
-                    pagetype = df.iloc[i]['pagetype']
+                    st.write("Generating new metadescriptions for every URL... Please wait.")
+                    df['new_metadescription'] = ''
 
-                    prompt = f""" You are an SEO Expert who crafts excellent meta descriptions. Generate a concise and engaging meta description of maximum 150 characters for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', the main heading '{h1}' and a current meta description that looks like the following but needs improvement '{meta_description}'. """
+                    for i in range(len(df)):
+                        address = df.iloc[i]['Address']
+                        title = df.iloc[i]['Title 1']
+                        h1 = df.iloc[i]['H1-1']
+                        meta_description = df.iloc[i]['Meta Description 1']
+                        pagetype = df.iloc[i]['pagetype']
 
-                    response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=80)
+                        prompt = f""" You are an SEO Expert who crafts excellent meta descriptions. Generate a concise and engaging meta description of maximum 150 characters for a webpage of type '{pagetype}', with the URL '{address}', page title '{title}', the main heading '{h1}' and a current meta description that looks like the following but needs improvement '{meta_description}'. """
 
-                    new_metadescription = response.choices[0].text.strip()
+                        response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, temperature=0.5, max_tokens=80)
 
-                    df.iloc[i, df.columns.get_loc('new_metadescription')] = new_metadescription
+                        new_metadescription = response.choices[0].text.strip()
 
-                # Display result table
-                st.write("Result - Processed URLs with their Pagetypes and New Metadescriptions:")
-                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'Meta Description 1', 'pagetype', 'new_metadescription']]
-                st.dataframe(processed_urls_df)
+                        df.iloc[i, df.columns.get_loc('new_metadescription')] = new_metadescription
 
-                # Allow the user to download the new CSV
-                st.success("Metadescriptions have been created successfully! You can download the updated CSV below.")
-                csv = df.to_csv(index=False)
-                b64 = base64.b64encode(csv.encode()).decode()
-                href = f'<a href="data:file/csv;base64,{b64}" download="new_metadescriptions.csv">Download CSV File</a>'
-                st.markdown(href, unsafe_allow_html=True)
+                    st.write("Result - Processed URLs with their Pagetypes and New Metadescriptions:")
+                    processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'Meta Description 1', 'pagetype', 'new_metadescription']]
+                    st.dataframe(processed_urls_df)
+
+                    st.success("Metadescriptions have been created successfully! You can download the updated CSV below.")
+                    csv = df.to_csv(index=False)
+                    b64 = base64.b64encode(csv.encode()).decode()
+                    href = f'<a href="data:file/csv;base64,{b64}" download="new_metadescriptions.csv">Download CSV File</a>'
+                    st.markdown(href, unsafe_allow_html=True)
 
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
