@@ -39,15 +39,15 @@ if password_entered and password_input == password:
                     df = df[~df['Address'].str.contains('image/svg\+xml|\.jpeg|\.jpg|\.gif|\.png|\.svg|\.bmp|\.tiff|\.webp|\.heic|\.ico|\.psd|\.ai|\.eps$', regex=True)]
 
                     option_1 = st.selectbox('Choose URLs category:', ('All URLs', 'SEO Relevant URLs'))
-                    option_2 = st.selectbox('Choose optimization category:', ('Optimize All URLs', 'Optimize Only Missing Meta Descriptions'))
+                    option_2 = st.selectbox('Choose optimization category:', ('All Descriptions', 'Only Missing Descriptions'))
 
-                    if option_1 == 'All URLs' and option_2 == 'Optimize All URLs':
+                    if option_1 == 'All URLs' and option_2 == 'All Descriptions':
                         pass
 
-                    elif option_1 == 'All URLs' and option_2 == 'Optimize Only Missing Meta Descriptions':
+                    elif option_1 == 'All URLs' and option_2 == 'Only Missing Descriptions':
                         df = df[df['Meta Description 1'].isna() | df['Meta Description 1'] == ""]
 
-                    elif option_1 == 'SEO Relevant URLs' and option_2 == 'Optimize All URLs':
+                    elif option_1 == 'SEO Relevant URLs' and option_2 == 'All Descriptions':
                         if 'Status Code' in df.columns and 'Indexability' in df.columns:
                             df['Indexability'] = df['Indexability'].str.strip().str.lower()
                             df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable')]
@@ -57,7 +57,7 @@ if password_entered and password_input == password:
                                 st.warning("Terminating the execution.")
                                 sys.exit()
 
-                    elif option_1 == 'SEO Relevant URLs' and option_2 == 'Optimize Only Missing Meta Descriptions':
+                    elif option_1 == 'SEO Relevant URLs' and option_2 == 'Only Missing Descriptions':
                         if 'Status Code' in df.columns and 'Indexability' in df.columns:
                             df['Indexability'] = df['Indexability'].str.strip().str.lower()
                             df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable') & (df['Meta Description 1'].isna() | df['Meta Description 1'] == "")]
