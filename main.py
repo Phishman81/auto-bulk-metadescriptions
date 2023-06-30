@@ -17,7 +17,7 @@ if password_input:  # Check if a password has been entered
 
 if password_entered and password_input == password:
     # File upload
-    file = st.file_uploader("Upload a CSV File", type=['csv'])
+    file = st.file_uploader("Upload a CSV File from Screaming Frog Seo Spider (ideally: internal_all.csv or html_all.csv)", type=['csv'])
 
     if file is not None:
         df = pd.read_csv(file)
