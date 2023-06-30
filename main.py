@@ -61,9 +61,7 @@ if password_entered and password_input == password:
             st.write(f"Total URLs to be processed: {len(df)}")
 
             # Button to initiate processing
-            # Display count of URLs
-            url_count = len(df)
-            start_button = st.button(f"Start Processing {url_count} URLs")
+            start_button = st.button(f"Start Processing URLs")
             
 
             if start_button:
