@@ -17,7 +17,7 @@ if password_input:  # Check if a password has been entered
 
 if password_entered and password_input == password:
     # File upload
-    file = st.file_uploader("Upload a CSV File from Screaming Frog Seo Spider (ideally: internal_all.csv or html_all.csv)", type=['csv'])
+    file = st.file_uploader("Upload a CSV File", type=['csv'])
 
     if file is not None:
         df = pd.read_csv(file)
@@ -41,11 +41,12 @@ if password_entered and password_input == password:
 
 
                     # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
-                    option = st.radio('Choose an option:', ('All URLs (contains noindex & canonicalized URLs)', 'SEO Relevant URLs only (only indexable URLs'))
+                    option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs'))
 
                     if option == 'SEO Relevant URLs':
                         if 'Status Code' in df.columns and 'Indexability' in df.columns:
-                            df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'Indexable')]
+                            df['Indexability'] = df['Indexability'].str.strip().str.lower()
+                            df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable')]
                         else:
                             proceed = st.radio(
                                 'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
@@ -61,8 +62,7 @@ if password_entered and password_input == password:
             st.write(f"Total URLs to be processed: {len(df)}")
 
             # Button to initiate processing
-            start_button = st.button(f"Start Processing URLs")
-            
+            start_button = st.button(f"Start Processing {len(df)} URLs")
 
             if start_button:
                 df['pagetype'] = ''
@@ -134,5 +134,5 @@ if password_entered and password_input == password:
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
 
-elif password_entered:  # Check if the password has been entered
+elif password_entered:
     st.error("Incorrect password. Please try again.")
