@@ -7,6 +7,14 @@ import sys
 # Main page title
 st.title("Auto Metadescriptions Generator")
 
+#Description
+st.write("""
+This application is designed to help you auto-generate meta descriptions for your websites. 
+To use it, simply upload a CSV file with your site's URLs and select parameters for processing. 
+You will be given choices to choose from the URLs category and the optimisation category. 
+Upon completion, the app will generate a new CSV file with improved meta descriptions.
+""")
+
 # Password for access
 password = st.secrets["password"]
 password_input = st.text_input("Enter Password", type="password")
