@@ -99,7 +99,7 @@ if password_entered and password_input == password:
 
                 # Intermediate result table
                 st.write("Intermediate Result - Processed URLs with their Pagetypes:")
-                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'H1-1', 'pagetype','Status Code', 'Indexability']]
+                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'Meta Description 1', 'H1-1', 'pagetype','Status Code', 'Indexability']]
                 st.dataframe(processed_urls_df)
 
                 # New metadescription generation
@@ -123,7 +123,7 @@ if password_entered and password_input == password:
 
                 # Display result table
                 st.write("Result - Processed URLs with their Pagetypes and New Metadescriptions:")
-                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'pagetype', 'new_metadescription']]
+                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'Meta Description 1', 'pagetype', 'new_metadescription']]
                 st.dataframe(processed_urls_df)
 
                 # Allow the user to download the new CSV
