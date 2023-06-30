@@ -14,7 +14,7 @@ You can choose to either create meta descriptions for all valid pages or only fo
 Even better: You can choose to only create meta descriptions for urls that are missing one yet.
 To use it, simply upload a CSV file from Screaming Frog SEO Spider with your site's URLs and select parameters for processing. 
 The app will exclude any irrelevant urls like scripts and images automatically.
-By checking the url, the current Title - and if available H1 and meta description - the app will then define the page type for each url for better defining the potential intent behind it 
+By checking the url, the current Title - and if available H1 and meta description - the app will then define the page type for each url for better defining the potential intent behind it. 
 Upon completion, the app will generate a new CSV file with improved meta descriptions.
 """)
 
