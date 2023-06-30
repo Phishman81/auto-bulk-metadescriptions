@@ -21,6 +21,7 @@ if password_entered and password_input == password:
 
     if file is not None:
         st.write("Uploaded file is being processed...")
+        st.write("Filtering for 'text/html' URLs and excluding image URLs...")
         df = pd.read_csv(file)
 
         try:
