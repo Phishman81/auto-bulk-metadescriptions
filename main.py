@@ -24,19 +24,14 @@ if password_entered and password_input == password:
         df = pd.read_csv(file)
 
         try:
-            # Check if the CSV file is valid
-            st.write("Checking if the relevant columns are present in the CSV file...")
             required_columns = ['Address', 'Title 1', 'Meta Description 1', 'Content Type']
             valid_csv = all(col in df.columns for col in required_columns)
 
             if not valid_csv:
                 missing_columns = [col for col in required_columns if col not in df.columns]
                 missing_columns_str = ', '.join(missing_columns)
-                st.error(f"Invalid CSV file. Please ensure it contains the following columns: {missing_columns_str}.")
+                st.error(f"Invalid CSV file. It is missing the following columns: {missing_columns_str}.")
                 sys.exit()
-
-            # Check if 'Content Type' column contains 'text/html' and exclude image URLs
-            st.write("Filtering for 'text/html' URLs and excluding image URLs...")
 
             if 'Content Type' in df.columns:
                 if df['Content Type'].str.contains('text/html').any():                
@@ -56,9 +51,7 @@ if password_entered and password_input == password:
                             df['Indexability'] = df['Indexability'].str.strip().str.lower()
                             df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable')]
                         else:
-                            proceed = st.radio(
-                                'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
-                                ('Yes', 'No'))
+                            proceed = st.radio('The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?', ('Yes', 'No'))
                             if proceed == 'No':
                                 st.warning("Terminating the execution.")
                                 sys.exit()
@@ -68,15 +61,16 @@ if password_entered and password_input == password:
                             df['Indexability'] = df['Indexability'].str.strip().str.lower()
                             df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable') & (df['Meta Description 1'].isna() | df['Meta Description 1'] == "")]
                         else:
-                            proceed = st.radio(
-                                'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
-                                ('Yes', 'No'))
+                            proceed = st.radio('The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?', ('Yes', 'No'))
                             if proceed == 'No':
                                 st.warning("Terminating the execution.")
                                 sys.exit()
 
                     if df.empty:
-                        st.warning("No URLs matching the conditions were found.")
+                        if option_2 == 'Optimize Only Missing Meta Descriptions':
+                            st.warning("There are no missing Meta Descriptions in your selection.")
+                        else:
+                            st.warning("No URLs matching the conditions were found.")
                         sys.exit()
 
                 else:
