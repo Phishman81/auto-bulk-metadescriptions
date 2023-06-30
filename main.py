@@ -41,7 +41,7 @@ if password_entered and password_input == password:
 
 
                     # Ask if metadescriptions should be generated for all URLs or only SEO relevant ones
-                    option = st.radio('Choose an option:', ('All URLs (can contain canonicalized URLs)', 'SEO Relevant URLs only (only indexable URLs'))
+                    option = st.radio('Choose an option:', ('All URLs (contains noindex & canonicalized URLs)', 'SEO Relevant URLs only (only indexable URLs'))
 
                     if option == 'SEO Relevant URLs':
                         if 'Status Code' in df.columns and 'Indexability' in df.columns:
@@ -61,7 +61,7 @@ if password_entered and password_input == password:
             st.write(f"Total URLs to be processed: {len(df)}")
 
             # Button to initiate processing
-            start_button = st.button("Start Processing")
+            start_button = st.button("Start Processing {len(df) URLs")
 
             if start_button:
                 df['pagetype'] = ''
