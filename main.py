@@ -8,14 +8,22 @@ import sys
 st.title("Auto Metadescriptions Generator")
 
 #Description
-st.write("""
-This app is designed to help you auto-generate meta descriptions for your website in bulk.
-You can choose to either create meta descriptions for all valid pages or only for seo relevant pages (the ones that are indexable).
-Even better: You can choose to only create meta descriptions for urls that are missing one yet.
-To use it, simply upload a CSV file from Screaming Frog SEO Spider with your site's URLs and select parameters for processing. 
-The app will exclude any irrelevant urls like scripts and images automatically.
-By checking the url, the current Title - and if available H1 and meta description - the app will then define the page type for each url for better defining the potential intent behind it. 
-Upon completion, the app will generate a new CSV file with improved meta descriptions.
+st.markdown("""
+#### This application is specifically designed to streamline the process of auto-generating meta descriptions for your website in bulk. Offering you a choice to either:
+- Generate meta descriptions for all valid pages,
+- Focus solely on SEO relevant pages (i.e., the indexable ones),
+- Even better: target URLs missing descriptions.
+
+###### How to Use:
+- Upload a CSV file from Screaming Frog SEO Spider containing your site's URLs.
+- Select the necessary parameters for processing.
+
+###### Automatic Exclusion and Page Type Definition:
+Automatically excluding irrelevant URLs like scripts and images.
+By analyzing the url, current title - and if available, H1 and meta description - the application defines the page type for each URL to enhance the understanding of potential user intent.
+
+###### Final Output:
+Upon completion, auto-generates an improved CSV file populated with improved meta descriptions.
 """)
 
 # Password for access
