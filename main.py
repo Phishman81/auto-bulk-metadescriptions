@@ -37,19 +37,33 @@ if password_entered and password_input == password:
 
             # Check if 'Content Type' column contains 'text/html' and exclude image URLs
             st.write("Filtering for 'text/html' URLs and excluding image URLs...")
-            if 'Content Type' in df.columns:
-                if df['Content Type'].str.contains('text/html').any():
 
+            if 'Content Type' in df.columns:
+                if df['Content Type'].str.contains('text/html').any():                
                     df = df[~df['Address'].str.contains('image/svg\+xml|\.jpeg|\.jpg|\.gif|\.png|\.svg|\.bmp|\.tiff|\.webp|\.heic|\.ico|\.psd|\.ai|\.eps$', regex=True)]
 
-                    option = st.radio('Choose an option:', ('All URLs', 'SEO Relevant URLs', 'All Missing Meta Descriptions', 'Missing Meta Descriptions for SEO Relevant Pages'))
-                    if option == 'All URLs':
+                    option_1 = st.selectbox('Choose URLs category:', ('All URLs', 'SEO Relevant URLs'))
+                    option_2 = st.selectbox('Choose optimization category:', ('Optimize All URLs', 'Optimize Only Missing Meta Descriptions'))
+
+                    if option_1 == 'All URLs' and option_2 == 'Optimize All URLs':
                         pass
 
-                    elif option == 'All Missing Meta Descriptions':
+                    elif option_1 == 'All URLs' and option_2 == 'Optimize Only Missing Meta Descriptions':
                         df = df[df['Meta Description 1'].isna() | df['Meta Description 1'] == ""]
 
-                    elif option == 'Missing Meta Descriptions for SEO Relevant Pages':
+                    elif option_1 == 'SEO Relevant URLs' and option_2 == 'Optimize All URLs':
+                        if 'Status Code' in df.columns and 'Indexability' in df.columns:
+                            df['Indexability'] = df['Indexability'].str.strip().str.lower()
+                            df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable')]
+                        else:
+                            proceed = st.radio(
+                                'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
+                                ('Yes', 'No'))
+                            if proceed == 'No':
+                                st.warning("Terminating the execution.")
+                                sys.exit()
+
+                    elif option_1 == 'SEO Relevant URLs' and option_2 == 'Optimize Only Missing Meta Descriptions':
                         if 'Status Code' in df.columns and 'Indexability' in df.columns:
                             df['Indexability'] = df['Indexability'].str.strip().str.lower()
                             df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable') & (df['Meta Description 1'].isna() | df['Meta Description 1'] == "")]
@@ -61,23 +75,10 @@ if password_entered and password_input == password:
                                 st.warning("Terminating the execution.")
                                 sys.exit()
 
-                    elif option == 'SEO Relevant URLs':
-                        if 'Status Code' in df.columns and 'Indexability' in df.columns:
-                            df['Indexability'] = df['Indexability'].str.strip().str.lower()
-                            df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable')]
-                        else:
-                            proceed = st.radio(
-                                'The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?',
-                                ('Yes', 'No'))
-                            if proceed == 'No':
-                                st.warning("Terminating the execution.")
-                                sys.exit()
-                    else:
-                        st.warning("Invalid option selected.")
-
                     if df.empty:
                         st.warning("No URLs matching the conditions were found.")
                         sys.exit()
+
                 else:
                     st.warning("No URLs with 'text/html' content type found in the CSV.")
                     sys.exit()
