@@ -3,6 +3,8 @@ import pandas as pd
 import openai
 import base64
 import sys
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Main page title
 st.title("Auto Metadescriptions Generator")
@@ -70,6 +72,13 @@ if password_entered and password_input == password:
                         if 'Status Code' in df.columns and 'Indexability' in df.columns:
                             df['Indexability'] = df['Indexability'].str.strip().str.lower()
                             df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable')]
+                            
+                            # Pie chart for SEO relevant vs non-relevant URLs
+                            st.subheader("SEO Relevant vs Non-Relevant URLs")
+                            fig, ax = plt.subplots()
+                            df['Indexability'].value_counts().plot(kind='pie', autopct='%1.1f%%', ax=ax)
+                            st.pyplot(fig)
+                            
                         else:
                             proceed = st.radio('The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?', ('Yes', 'No'))
                             if proceed == 'No':
@@ -129,6 +138,12 @@ if password_entered and password_input == password:
                         pagetype = response.choices[0].text.strip()
 
                         df.iloc[i, df.columns.get_loc('pagetype')] = pagetype
+                        # Bar plot showing the distribution of page types
+                        st.subheader("Distribution of Page Types")
+                        fig, ax = plt.subplots()
+                        sns.countplot(data=df, x='pagetype', ax=ax)
+                        plt.xticks(rotation=90)
+                        st.pyplot(fig)
 
                     st.write("Intermediate Result - Processed URLs with their Pagetypes:")
                     processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'Meta Description 1', 'H1-1', 'pagetype','Status Code', 'Indexability']]
