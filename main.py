@@ -68,6 +68,14 @@ if password_entered and password_input == password:
                     elif option_1 == 'All URLs' and option_2 == 'Only Missing Descriptions':
                         df = df[df['Meta Description 1'].isna() | df['Meta Description 1'] == ""]
 
+                    # Bar plot for URLs with missing meta descriptions
+                    st.subheader("URLs with Missing Meta Descriptions")
+                    missing_desc = df['Meta Description 1'].isna() | df['Meta Description 1'] == ""
+                    fig, ax = plt.subplots()
+                    missing_desc.value_counts().plot(kind='bar', ax=ax)
+                    ax.set_xticklabels(['No Missing Description', 'Missing Description'], rotation=0)
+                    st.pyplot(fig)
+
                     elif option_1 == 'SEO Relevant URLs' and option_2 == 'All Descriptions':
                         if 'Status Code' in df.columns and 'Indexability' in df.columns:
                             df['Indexability'] = df['Indexability'].str.strip().str.lower()
