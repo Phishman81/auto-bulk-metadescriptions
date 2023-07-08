@@ -11,33 +11,17 @@ st.title("Auto Metadescriptions Generator")
 
 #Description
 st.markdown("""
-#### This application is specifically designed to streamline the process of auto-generating meta descriptions for your website in bulk. Offering you a choice to either:
-- Generate meta descriptions for all valid pages,
-- Focus solely on SEO relevant pages (i.e., the indexable ones),
-- Even better: target URLs missing descriptions.
-
-###### How to Use:
-- Upload a CSV file from Screaming Frog SEO Spider containing your site's URLs.
-- Select the necessary parameters for processing.
-
-###### Automatic Exclusion and Page Type Definition:
-Automatically excluding irrelevant URLs like scripts and images.
-By analyzing the url, current title - and if available, H1 and meta description - the application defines the page type for each URL to enhance the understanding of potential user intent.
-
-###### Final Output:
-Upon completion, auto-generates an improved CSV file populated with improved meta descriptions.
+This application is specifically designed to streamline the process of auto-generating meta descriptions for your website in bulk...
 """)
 
-# Password for access
 password = st.secrets["password"]
 password_input = st.text_input("Enter Password", type="password")
-password_entered = False  # Track if the password has been entered
+password_entered = False 
 
-if password_input:  # Check if a password has been entered
-    password_entered = True  # Set the flag to True
+if password_input:
+    password_entered = True 
 
 if password_entered and password_input == password:
-    # File upload
     file = st.file_uploader("Upload a CSV File", type=['csv'])
 
     if file is not None:
@@ -62,19 +46,8 @@ if password_entered and password_input == password:
                     option_1 = st.selectbox('Choose URLs category:', ('All URLs', 'SEO Relevant URLs'))
                     option_2 = st.selectbox('Choose optimization category:', ('All Descriptions', 'Only Missing Descriptions'))
 
-                    if option_1 == 'All URLs' and option_2 == 'All Descriptions':
-                        pass
-
-                    elif option_1 == 'All URLs' and option_2 == 'Only Missing Descriptions':
+                    if option_1 == 'All URLs' and option_2 == 'Only Missing Descriptions':
                         df = df[df['Meta Description 1'].isna() | df['Meta Description 1'] == ""]
-
-                        # Bar plot for URLs with missing meta descriptions
-                        st.subheader("URLs with Missing Meta Descriptions")
-                        missing_desc = df['Meta Description 1'].isna() | df['Meta Description 1'] == ""
-                        fig, ax = plt.subplots()
-                        missing_desc.value_counts().plot(kind='bar', ax=ax)
-                        ax.set_xticklabels(['No Missing Description', 'Missing Description'], rotation=0)
-                        st.pyplot(fig)
 
                 else:
                     st.warning("No URLs with 'text/html' content type found in the CSV.")
@@ -84,12 +57,6 @@ if password_entered and password_input == password:
                 if 'Status Code' in df.columns and 'Indexability' in df.columns:
                     df['Indexability'] = df['Indexability'].str.strip().str.lower()
                     df = df[(df['Status Code'] == 200) & (df['Indexability'] == 'indexable')]
-
-                    # Pie chart for SEO relevant vs non-relevant URLs
-                    st.subheader("SEO Relevant vs Non-Relevant URLs")
-                    fig, ax = plt.subplots()
-                    df['Indexability'].value_counts().plot(kind='pie', autopct='%1.1f%%', ax=ax)
-                    st.pyplot(fig)
 
                 else:
                     proceed = st.radio('The CSV does not contain the necessary columns for SEO relevance checking (Status Code and Indexability). Proceed by optimizing all URLs?', ('Yes', 'No'))
@@ -146,16 +113,11 @@ if password_entered and password_input == password:
                     pagetype = response.choices[0].text.strip()
 
                     df.iloc[i, df.columns.get_loc('pagetype')] = pagetype
-                    # Bar plot showing the distribution of page types
-                    st.subheader("Distribution of Page Types")
-                    fig, ax = plt.subplots()
-                    sns.countplot(data=df, x='pagetype', ax=ax)
-                    plt.xticks(rotation=90)
-                    st.pyplot(fig)
-
-                st.write("Intermediate Result - Processed URLs with their Pagetypes:")
-                processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'Meta Description 1', 'H1-1', 'pagetype','Status Code', 'Indexability']]
-                st.dataframe(processed_urls_df)
+                st.subheader("Distribution of Page Types")
+                fig, ax = plt.subplots()
+                sns.countplot(data=df, x='pagetype', ax=ax)
+                plt.xticks(rotation=90)
+                st.pyplot(fig)
 
                 st.write("Generating new metadescriptions for every URL... Please wait.")
                 df['new_metadescription'] = ''
@@ -174,13 +136,11 @@ if password_entered and password_input == password:
                     new_metadescription = response.choices[0].text.strip()
 
                     df.iloc[i, df.columns.get_loc('new_metadescription')] = new_metadescription
-
-                    # Histogram for meta description lengths
-                    st.subheader("Meta Description Lengths")
-                    fig, ax = plt.subplots()
-                    df['new_metadescription'].str.len().plot(kind='hist', bins=30, ax=ax)
-                    ax.set_xlabel("Meta Description Length")
-                    st.pyplot(fig)
+                st.subheader("Meta Description Lengths")
+                fig, ax = plt.subplots()
+                df['new_metadescription'].str.len().plot(kind='hist', bins=30, ax=ax)
+                ax.set_xlabel("Meta Description Length")
+                st.pyplot(fig)
 
 
                 st.write("Result - Processed URLs with their Pagetypes and New Metadescriptions:")
