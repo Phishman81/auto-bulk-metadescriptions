@@ -175,6 +175,14 @@ if password_entered and password_input == password:
 
                         df.iloc[i, df.columns.get_loc('new_metadescription')] = new_metadescription
 
+                        # Histogram for meta description lengths
+                        st.subheader("Meta Description Lengths")
+                        fig, ax = plt.subplots()
+                        df['new_metadescription'].str.len().plot(kind='hist', bins=30, ax=ax)
+                        ax.set_xlabel("Meta Description Length")
+                        st.pyplot(fig)
+
+
                     st.write("Result - Processed URLs with their Pagetypes and New Metadescriptions:")
                     processed_urls_df = df[['Content Type', 'Address', 'Title 1', 'Meta Description 1', 'pagetype', 'new_metadescription']]
                     st.dataframe(processed_urls_df)
