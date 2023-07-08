@@ -1,3 +1,6 @@
 streamlit
 pandas
 openai
+base64   
+matplotlib
+seaborn
